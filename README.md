@@ -6,6 +6,7 @@ Supabase (Postgres, Auth, generated REST/GraphQL APIs, RLS).
 ## Layout
 - `supabase/config.toml` — local dev stack config
 - `supabase/migrations/` — versioned SQL (schema, RLS, triggers, indexes)
+- `supabase/functions/` — edge functions (e.g. `delete-account`)
 - `supabase/seed.sql` — demo data for local dev (auto-runs on `db reset`)
 - `scripts/` — helpers (link/push to cloud)
 
@@ -23,14 +24,17 @@ Demo login after reset: `demo@personalhub.local` / `demo123456`
 ## Cloud deploy
 ```bash
 supabase login
-supabase link --project-ref <your-project-ref>
-supabase db push        # apply migrations to cloud
+supabase link --project-ref <your-project-ref>   # dlcivqevddnyltudhjnk for the MCP-linked project
+supabase db push                                  # apply migrations to cloud
+supabase functions deploy delete-account          # required for Settings → Delete account
 ```
-Then frontend needs: `SUPABASE_URL` = `https://<ref>.supabase.co`,
-`SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` from Dashboard → Settings → API.
+Then the frontend needs (in Vercel):
+`NEXT_PUBLIC_SUPABASE_URL` = `https://<ref>.supabase.co`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` = project anon key (Dashboard → Settings → API).
+The `SUPABASE_SERVICE_ROLE_KEY` is only for seeding/admin/E2E helpers — never a `NEXT_PUBLIC_`.
 
-> In cloud Auth settings, disable email confirmation for the single-user personal
-> app (or leave on; signup flow handles it).
+> In cloud Auth settings, enable email confirmation (the frontend handles it); the
+> local stack has it off for the demo user.
 
 ## Schema (tables)
 | table | purpose |
